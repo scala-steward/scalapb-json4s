@@ -585,7 +585,9 @@ class JsonFormatSpec
     assertRejects("optionalUint64", "1234567890123456789012345")
     assertRejects("optionalUint64", "-1")
 
-    assertAccepts("optionalBool", "true")
+    JsonFormat
+      .fromJsonString[TestAllTypes]("""{"optionalBool":true}""")
+      .optionalBool must be(Some(true))
     assertRejects("optionalBool", "1")
     assertRejects("optionalBool", "0")
 
@@ -667,12 +669,21 @@ class JsonFormatSpec
     assertParse("""{"@type": "foo"}""", MyTest())
   }
 
-  "booleans" should "be accepted as string" in new DefaultParserContext {
-    // Java does it
-    val optBoolTrue = """{"optBool": "true"}"""
-    val optBoolFalse = """{"optBool": "false"}"""
-    assertParse(optBoolTrue, MyTest(optBool = Some(true)))
-    assertParse(optBoolFalse, MyTest(optBool = Some(false)))
+  "booleans" should "reject quoted values as required by recommended ProtoJSON conformance" in {
+    for (value <- Seq("true", "false")) {
+      intercept[JsonFormatException] {
+        JsonFormat.fromJsonString[MyTest](s"""{"optBool": "$value"}""")
+      }
+      JsonFormat
+        .fromJsonString[MyTest](s"""{"optBool": $value}""")
+        .optBool must be(Some(value == "true"))
+    }
+    // Boolean map keys are JSON object keys and therefore remain strings.
+    JsonFormat
+      .fromJsonString[MyTest](
+        """{"boolToString":{"true":"yes","false":"no"}}"""
+      )
+      .boolToString must be(Map(true -> "yes", false -> "no"))
   }
 
   "floats" should "not lose precision" in {

@@ -5,7 +5,7 @@ its last common commit with `0.12.x`, `2afe38f` (2023-11-23).
 
 ## Unreleased — 1.0.x (master)
 
-No changes yet since `1.0.0-alpha.2`.
+- Reject quoted JSON booleans (`"true"` and `"false"`) for boolean values. Use JSON boolean literals; boolean map keys remain strings.
 
 ## Unreleased — 0.12.x
 

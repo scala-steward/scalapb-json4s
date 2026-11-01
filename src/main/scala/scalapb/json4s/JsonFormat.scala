@@ -990,19 +990,17 @@ object JsonFormat {
           ) =>
         parseInt64(x)
 
-      case (Type.TYPE_DOUBLE, JDouble(x))     => parseDouble(x.toString)
-      case (Type.TYPE_DOUBLE, JInt(x))        => parseDouble(x.toString)
-      case (Type.TYPE_DOUBLE, JDecimal(x))    => parseDouble(x.toString)
-      case (Type.TYPE_DOUBLE, JString(v))     => parseDouble(v)
-      case (Type.TYPE_FLOAT, JDouble(x))      => parseFloat(x.toString)
-      case (Type.TYPE_FLOAT, JInt(x))         => parseFloat(x.toString)
-      case (Type.TYPE_FLOAT, JDecimal(x))     => parseFloat(x.toString)
-      case (Type.TYPE_FLOAT, JString(v))      => parseFloat(v)
-      case (Type.TYPE_BOOL, JBool(b))         => PBoolean(b)
-      case (Type.TYPE_BOOL, JString("true"))  => PBoolean(true)
-      case (Type.TYPE_BOOL, JString("false")) => PBoolean(false)
-      case (Type.TYPE_STRING, JString(s))     => PString(s)
-      case (Type.TYPE_BYTES, JString(s))      =>
+      case (Type.TYPE_DOUBLE, JDouble(x))  => parseDouble(x.toString)
+      case (Type.TYPE_DOUBLE, JInt(x))     => parseDouble(x.toString)
+      case (Type.TYPE_DOUBLE, JDecimal(x)) => parseDouble(x.toString)
+      case (Type.TYPE_DOUBLE, JString(v))  => parseDouble(v)
+      case (Type.TYPE_FLOAT, JDouble(x))   => parseFloat(x.toString)
+      case (Type.TYPE_FLOAT, JInt(x))      => parseFloat(x.toString)
+      case (Type.TYPE_FLOAT, JDecimal(x))  => parseFloat(x.toString)
+      case (Type.TYPE_FLOAT, JString(v))   => parseFloat(v)
+      case (Type.TYPE_BOOL, JBool(b))      => PBoolean(b)
+      case (Type.TYPE_STRING, JString(s))  => PString(s)
+      case (Type.TYPE_BYTES, JString(s))   =>
         try {
           PByteString(
             ByteString.copyFrom(

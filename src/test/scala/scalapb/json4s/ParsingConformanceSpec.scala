@@ -42,9 +42,12 @@ class ParsingConformanceSpec extends AnyFlatSpec with Matchers {
     }
   }
 
-  "Quoted boolean parsing" should "already accept the recommended conformance forms" in {
-    JsonFormat.fromJsonString[BoolValue]("\"true\"").value must be(true)
-    JsonFormat.fromJsonString[BoolValue]("\"false\"").value must be(false)
+  "Quoted boolean parsing" should "reject quoted wrapper values" in {
+    for (json <- Seq("\"true\"", "\"false\"")) {
+      intercept[JsonFormatException](JsonFormat.fromJsonString[BoolValue](json))
+    }
+    JsonFormat.fromJsonString[BoolValue]("true").value must be(true)
+    JsonFormat.fromJsonString[BoolValue]("false").value must be(false)
   }
 
   "Enum formatters" should "support application-defined JSON names independently of Edition 2026" in {
