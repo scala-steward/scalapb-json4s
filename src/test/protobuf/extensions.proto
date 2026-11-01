@@ -1,0 +1,18 @@
+syntax = "proto2";
+package jsontest.extensions;
+
+message Extensible {
+  optional Extensible child = 1;
+  repeated Extensible children = 2;
+  map<string, Extensible> items = 3;
+  extensions 100 to 199;
+}
+message Details {
+  optional string text = 1;
+}
+extend Extensible {
+  optional int32 count = 100;
+  optional string note = 101;
+  repeated int64 numbers = 102;
+  optional Details details = 103;
+}

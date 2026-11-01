@@ -412,7 +412,14 @@ class Printer private (config: Printer.PrinterConfig) {
             }
           }
         }
-        JObject(b.result())
+        JObject(
+          b.result() ++ ExtensionFormat.print(
+            m,
+            this,
+            config.isFormattingLongAsNumber,
+            config.isFormattingEnumsAsNumber
+          )
+        )
     }
   }
 
@@ -559,7 +566,9 @@ class Parser private (config: Parser.ParserConfig) {
       value: JValue,
       skipTypeUrl: Boolean
   )(implicit cmp: GeneratedMessageCompanion[A]): A = {
-    cmp.messageReads.read(fromJsonToPMessage(cmp, value, skipTypeUrl))
+    val message =
+      cmp.messageReads.read(fromJsonToPMessage(cmp, value, skipTypeUrl))
+    ExtensionFormat.restore(cmp, message, value, this)
   }
 
   private def allowNullValueForField(fd: FieldDescriptor): Boolean = {
@@ -654,6 +663,10 @@ class Parser private (config: Parser.ParserConfig) {
                   )
                   valueMapBuilder += (fd -> parseValue(fd, jValue))
                 }
+              } else if (
+                ExtensionFormat.find(cmp, typeRegistry, name).isDefined
+              ) {
+                // Restored from wire fields after normal message conversion.
               } else if (
                 !config.isIgnoringUnknownFields && !(skipTypeUrl && name == "@type")
               ) {
