@@ -5,6 +5,14 @@ its last common commit with `0.12.x`, `2afe38f` (2023-11-23).
 
 ## Unreleased — 1.0.x (master)
 
+No changes yet since `1.0.0-alpha.3`.
+
+## 1.0.0-alpha.3 — 2026-11-01
+
+Changes since `1.0.0-alpha.2`. ScalaPB remains at `1.0.0-alpha.6`; protobuf and json4s dependency versions are unchanged.
+
+- Update Scala 3 to `3.3.9` and sbt to `1.13.1`.
+
 - Parse and print bracketed ProtoJSON extension names declared in the message descriptor file, its dependencies, or files represented in the TypeRegistry. Preserve extensions inside nested messages, repeated fields and maps; register companions for message-valued extensions.
 
 - Reject unpaired or reversed Unicode surrogates in JSON string values and object keys, including prebuilt json4s trees. Valid supplementary characters remain supported.
