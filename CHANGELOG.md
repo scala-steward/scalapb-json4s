@@ -5,6 +5,8 @@ its last common commit with `0.12.x`, `2afe38f` (2023-11-23).
 
 ## Unreleased — 1.0.x (master)
 
+- Reject unpaired or reversed Unicode surrogates in JSON string values and object keys, including prebuilt json4s trees. Valid supplementary characters remain supported.
+
 - Reject quoted JSON booleans (`"true"` and `"false"`) for boolean values. Use JSON boolean literals; boolean map keys remain strings.
 
 ## Unreleased — 0.12.x

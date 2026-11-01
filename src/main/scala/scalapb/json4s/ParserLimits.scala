@@ -8,6 +8,25 @@ private[json4s] object ParserLimits {
   val MaxNumberLength = 1024
   private val factory = new JsonFactory()
 
+  // Character's predicates validate UTF-16 without allocating an encoded copy.
+  // UTF-8 CharsetEncoder.canEncode is used as an independent oracle in tests.
+  private def checkUnicode(value: String): Unit = {
+    var i = 0
+    while (i < value.length) {
+      val ch = value.charAt(i)
+      if (Character.isSurrogate(ch)) {
+        if (
+          i + 1 >= value.length || !Character.isSurrogatePair(
+            ch,
+            value.charAt(i + 1)
+          )
+        )
+          throw new JsonFormatException("Unpaired surrogate in JSON string")
+        i += 2
+      } else i += 1
+    }
+  }
+
   def checkNumberLength(length: Int): Unit =
     if (length > MaxNumberLength)
       throw new JsonFormatException("Numeric literal exceeds 1024 characters")
@@ -31,6 +50,8 @@ private[json4s] object ParserLimits {
           case JsonToken.END_OBJECT | JsonToken.END_ARRAY => depth -= 1
           case JsonToken.VALUE_NUMBER_INT | JsonToken.VALUE_NUMBER_FLOAT =>
             checkNumberLength(reader.getTextLength)
+          case JsonToken.VALUE_STRING | JsonToken.FIELD_NAME =>
+            checkUnicode(reader.getText)
           case _ =>
         }
         token = reader.nextToken()
@@ -50,10 +71,15 @@ private[json4s] object ParserLimits {
       if (!values.hasNext) stack = stack.tail
       else {
         val children = values.next() match {
-          case JObject(fields) => Some(fields.iterator.map(_._2))
-          case JArray(values)  => Some(values.iterator)
-          case JSet(values)    => Some(values.iterator)
-          case JInt(n)         =>
+          case JObject(fields) =>
+            fields.foreach(f => checkUnicode(f._1))
+            Some(fields.iterator.map(_._2))
+          case JString(value) =>
+            checkUnicode(value)
+            None
+          case JArray(values) => Some(values.iterator)
+          case JSet(values)   => Some(values.iterator)
+          case JInt(n)        =>
             // 1024 decimal digits require at most 3402 bits. Avoid converting
             // arbitrarily large caller-supplied integers to decimal strings.
             if (n.bitLength > 3402) checkNumberLength(MaxNumberLength + 1)
